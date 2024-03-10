@@ -2,13 +2,22 @@ import socket
 import cv2
 import numpy as np
 import struct
+from car_detection.car_detector import CarDetector
+
+
+detector = CarDetector()
+
+
+def process_car(frame):
+    bbox = detector.predict_single_frame(frame)
+    return bbox
+
 
 from asl import process_asl, init_asl
 
 init_asl()
 
-def process_car(frame):
-    return "Car Detected", 0.95
+
 
 HOST = ''
 PORT = 8000

@@ -53,14 +53,17 @@ try:
             if frame is not None:
                 if mode == "ASL":
                     label, confidence = process_asl(frame)
+                    # Ensure label and confidence are not None
+                    label = label if label is not None else "Unknown"
+                    confidence = confidence if confidence is not None else 0.0
+                    response = f"{label},{confidence:.2f}".encode('utf-8')
                 elif mode == "CAR":
-                    label, confidence = process_car(frame)
-                
-                # Ensure label and confidence are not None
-                label = label if label is not None else "Unknown"
-                confidence = confidence if confidence is not None else 0.0
-                
-                response = f"{label},{confidence:.2f}".encode('utf-8')
+                    bbox = process_car(frame)
+                    response += f"{len(bbox)}".encode('utf-8')
+                    for i in bbox:
+                        response += f",{i[0]},{i[1]},{i[2]},{i[3]}".encode('utf-8')   
+                    print (response)               
+         
                 conn.sendall(response)
             else:
                 print("Failed to decode frame.")

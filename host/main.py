@@ -2,15 +2,21 @@ import socket
 import cv2
 import numpy as np
 import struct
+from car_detection.car_detector import CarDetector
 
+
+detector = CarDetector()
+
+
+def process_car(frame):
+    bbox = detector.predict_single_frame(frame)
+    return bbox
 
 from asl import process_asl, init_asl
 
 init_asl()
 
-# placeholder for liam
-def process_car(frame):
-    return "Car Detected", 0.95
+
 
 HOST = ''  
 PORT = 8000  
@@ -39,14 +45,20 @@ try:
         frame = np.frombuffer(frame_data, dtype=np.uint8)
         frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
         
+        response = b""
+        
         if mode == "ASL":
             label, confidence = process_asl(frame)
+            response = f"{label},{confidence:.2f}".encode('utf-8')
         elif mode == "CAR":
-            label, confidence = process_car(frame)
+            bbox = process_car(frame)
+            response = f"{len(bbox)}\n".encode('utf-8')
+            for i in bbox:
+                response += f"{i[0]},{i[1]},{i[2]},{i[3]}".encode('utf-8')
         else:
             continue  
         
-        response = f"{label},{confidence:.2f}".encode('utf-8')
+        
         conn.sendall(response)
         
 finally:

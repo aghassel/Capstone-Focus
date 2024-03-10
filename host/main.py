@@ -9,7 +9,7 @@ detector = CarDetector()
 
 
 def process_car(frame):
-    bbox = detector.predict_single_frame(frame)
+    bbox = detector.predict_single_frame(frame, threshold=0.5)
     return bbox
 
 from asl import process_asl, init_asl

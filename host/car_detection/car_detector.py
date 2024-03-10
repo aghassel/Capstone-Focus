@@ -22,22 +22,30 @@ class CarDetector:
             dummy_out = dummy_out.to('cpu')
 
 
-    def predict_single_frame(self, frame):
-        # Resize the frame before making predictions
+    def predict_single_frame(self, frame, threshold=None):
+        assert frame is not None, "Frame is None"
+        assert threshold >= 0 and threshold <= 1, "Treshold must be between 0 and 1"
+        
+   
         resized_frame = cv2.resize(frame, (640, 480))
+        
         results = self.model(resized_frame)
 
-        # Filter results for car class (class index 2)
+    
         results = [x for x in results.xyxy[0] if x[5] == 2]
 
-        # Scale the bounding box coordinates back to the original frame size
         bbox = [(x[0]*frame.shape[1]/640, x[1]*frame.shape[0]/480, x[2]*frame.shape[1]/640, x[3]*frame.shape[0]/480) for x in results]
 
         bbox = self.tracker.update(bbox)
 
+        if threshold is not None:
+            threshold_position = int(frame.shape[1] * (1 - threshold))
+            bbox = [i for i in bbox if i[0] < threshold_position]
+            bbox = [(i[0], i[1], threshold_position, i[3]) if i[2] > threshold_position else i for i in bbox]
+
         return bbox
 
-    def demo(self, cap, fps=30):
+    def demo(self, cap, fps=30, threshold=None):
         delay = 1 / fps
         frame_count = 0
         time_total = 0
@@ -49,7 +57,7 @@ class CarDetector:
                 break
             
             tic = time.time()
-            bbox = self.predict_single_frame(frame)
+            bbox = self.predict_single_frame(frame, threshold)
             toc = time.time()
             time_total += toc - tic
             frame_count += 1
@@ -57,6 +65,11 @@ class CarDetector:
             for i in bbox:
                 cv2.rectangle(frame, (int(i[0]), int(i[1])), (int(i[2]), int(i[3])), (0, 255, 0), 2)
                 cv2.putText(frame, 'Car', (int(i[0]), int(i[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+
+            if threshold is not None:
+                threshold_position = int(frame.shape[1] * (1 - threshold))
+                cv2.line(frame, (threshold_position, 0), (threshold_position, frame.shape[0]), (0, 0, 255), 2)
+
             cv2.imshow('Frame', frame)
 
             # Calculate the time taken to process the frame
@@ -80,5 +93,5 @@ if __name__ == "__main__":
     cap = cv2.VideoCapture('test_data/cars.mp4')
     fps = 30
     detector = CarDetector()
-    detector.demo(cap=cap, fps=fps)
+    detector.demo(cap=cap, fps=fps, threshold=0.4)
     cap.release()

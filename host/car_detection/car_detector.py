@@ -24,14 +24,14 @@ class CarDetector:
 
     def predict_single_frame(self, frame):
         # Resize the frame before making predictions
-        resized_frame = cv2.resize(frame, (1280, 720))
+        resized_frame = cv2.resize(frame, (640, 480))
         results = self.model(resized_frame)
 
         # Filter results for car class (class index 2)
         results = [x for x in results.xyxy[0] if x[5] == 2]
 
         # Scale the bounding box coordinates back to the original frame size
-        bbox = [(x[0]*frame.shape[1]/1280, x[1]*frame.shape[0]/720, x[2]*frame.shape[1]/1280, x[3]*frame.shape[0]/720) for x in results]
+        bbox = [(x[0]*frame.shape[1]/640, x[1]*frame.shape[0]/480, x[2]*frame.shape[1]/640, x[3]*frame.shape[0]/480) for x in results]
 
         bbox = self.tracker.update(bbox)
 

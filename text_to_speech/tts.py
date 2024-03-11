@@ -32,18 +32,15 @@ class TTS:
             response_format="wav"
         )
 
-if __name__ == "__main__":
-    import argparse
-    import time
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--msg", type=str, default="Hello, world! This is a test. Abdellah Go Shower!")
-    args = parser.parse_args()
-
+def main(args):
     tts = TTS("nova")
+    
     tic = time.time()
-
     response = tts.generate_tts(args.text)
+    toc = time.time()
+    print(f"Time taken for request: {toc - tic:.2f} seconds")
     # play the audio
+    tic = time.time()
     p = pyaudio.PyAudio()
     stream = p.open(format=pyaudio.paInt16,
                     channels=1,
@@ -57,5 +54,17 @@ if __name__ == "__main__":
     stream.close()
     p.terminate()
     toc = time.time()
-    print(f"Time taken: {toc - tic:.2f} seconds")
+    print(f"Time taken for audio playback: {toc - tic:.2f} seconds")
     print("done")
+
+
+
+
+if __name__ == "__main__":
+    import argparse
+    import time
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--text", type=str, default="Hello, world! This is a test. Abdellah Go Shower!")
+    args = parser.parse_args()
+    main(args)
+

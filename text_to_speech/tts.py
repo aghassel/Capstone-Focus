@@ -34,9 +34,11 @@ class TTS:
 
 def main(args):
     tts = TTS("nova")
-    
+
+    text = args.text
+
     tic = time.time()
-    response = tts.generate_tts(args.text)
+    response = tts.generate_tts(text)
     toc = time.time()
     print(f"Time taken for request: {toc - tic:.2f} seconds")
     # play the audio
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     import argparse
     import time
     parser = argparse.ArgumentParser()
-    parser.add_argument("--text", type=str, default="Hello, world! This is a test. Abdellah Go Shower!")
+    parser.add_argument("--text", type=str, default="Hello, world! This is a test. I hope it works. We will see.")
     args = parser.parse_args()
     main(args)
 

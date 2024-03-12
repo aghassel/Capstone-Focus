@@ -3,6 +3,9 @@ import cv2
 import numpy as np
 from tracker import EuclideanDistTracker
 import time
+from PIL import Image
+
+
 
 class CarDetector:
     def __init__(self, model_path='ultralytics/yolov5', model_name='yolov5s', device=None):
@@ -22,7 +25,7 @@ class CarDetector:
             dummy_out = dummy_out.to('cpu')
 
 
-    def predict_single_frame(self, frame, threshold=None):
+    def pred_bbox(self, frame, threshold=None):
         assert frame is not None, "Frame is None"
         assert threshold >= 0 and threshold <= 1, "Treshold must be between 0 and 1"
         
@@ -44,6 +47,37 @@ class CarDetector:
             bbox = [(i[0], i[1], threshold_position, i[3]) if i[2] > threshold_position else i for i in bbox]
 
         return bbox
+    
+    def predict_single_frame(self, frame, threshold=None):
+        bbox = self.pred_bbox(frame, threshold)
+        # create a empty black image in cv2
+        black_image = np.zeros((frame.shape[0], frame.shape[1], 3), dtype=np.uint8)
+
+        for i in bbox:
+            cv2.rectangle(black_image, (int(i[0]), int(i[1])), (int(i[2]), int(i[3])), (255, 255, 255), 2)
+            
+        
+        # convert to pillow image
+        black_image = cv2.cvtColor(black_image, cv2.COLOR_BGR2RGB)
+        black_image = Image.fromarray(black_image)
+
+        return black_image, bbox   
+
+    def return_warning(self, frame):  
+        bbox = self.pred_bbox(frame)
+        if bbox:
+            max_bbox = max(bbox, key=lambda x: (x[2] - x[0]) * (x[3] - x[1]))
+            bbox_width = max_bbox[2] - max_bbox[0]
+            if bbox_width < 100:
+                return "Car is far away"
+            elif bbox_width < 200:
+                return "Car is at a moderate distance"
+            else:
+                return "Car is close"
+        else:
+            return "No car detected"
+
+        
 
     def demo(self, cap, fps=30, threshold=None):
         delay = 1 / fps
@@ -55,12 +89,18 @@ class CarDetector:
             ret, frame = cap.read()
             if not ret:
                 break
+
+            # make frame a black image
+            black_image = np.zeros((frame.shape[0], frame.shape[1], 3), dtype=np.uint8)
+            frame = black_image
             
             tic = time.time()
-            bbox = self.predict_single_frame(frame, threshold)
+            black_image, bbox = self.predict_single_frame(frame, threshold)
             toc = time.time()
             time_total += toc - tic
             frame_count += 1
+            black_image = np.array(black_image)
+
 
             for i in bbox:
                 cv2.rectangle(frame, (int(i[0]), int(i[1])), (int(i[2]), int(i[3])), (0, 255, 0), 2)
@@ -69,8 +109,11 @@ class CarDetector:
             if threshold is not None:
                 threshold_position = int(frame.shape[1] * (1 - threshold))
                 cv2.line(frame, (threshold_position, 0), (threshold_position, frame.shape[0]), (0, 0, 255), 2)
+                cv2.line(black_image, (threshold_position, 0), (threshold_position, frame.shape[0]), (0, 0, 255), 2)
+
 
             cv2.imshow('Frame', frame)
+            cv2.imshow('Black Image', black_image)
 
             # Calculate the time taken to process the frame
             time_taken = time.time() - start_time

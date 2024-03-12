@@ -3,11 +3,10 @@ import os
 from openai import OpenAI
 import pyaudio
 from fastapi import FastAPI
-import asyncio
 import threading
 
 class TTS:
-    def __init__(self, name=None, verbose=False):
+    def __init__(self, name=None, verbose=False, api_key=None):
         '''
         Name options: alloy, echo, fable, onyx, nova, and shimmer
         Reads the API key from the api_keys.ini file in the same directory or from the environment
@@ -15,9 +14,12 @@ class TTS:
         print ("TTS __init__")
 
         # read the .ini file from the directory
-        self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(os.path.dirname(__file__), 'api_keys.ini'))
-        self.api_key = os.environ.get('OPENAI_API_KEY') or self.config.get('openai', 'OPENAI_API_KEY')  # get the API key from the environment or the .ini file
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            self.config = configparser.ConfigParser()
+            self.config.read(os.path.join(os.path.dirname(__file__), 'api_keys.ini'))
+            self.api_key = os.environ.get('OPENAI_API_KEY') or self.config.get('openai', 'OPENAI_API_KEY')  # get the API key from the environment or the .ini file
         self.client = OpenAI(api_key=self.api_key)
         self.name = "nova"
         self.app = FastAPI()

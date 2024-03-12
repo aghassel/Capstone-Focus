@@ -165,3 +165,4 @@ car_detection/models/yolo/yolov3.cfg
 car_detection/models/yolo/yolov3.weights
 api_keys.env
 text_to_speech/api_keys.ini
+credentials.json

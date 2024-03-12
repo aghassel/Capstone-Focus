@@ -42,7 +42,7 @@ if __name__ == "__main__":
     tts = TTS("nova")
     tic = time.time()
 
-    response = tts.generate_tts(args.text)
+    response = tts.generate_tts(args.msg)
     # play the audio
     p = pyaudio.PyAudio()
     stream = p.open(format=pyaudio.paInt16,

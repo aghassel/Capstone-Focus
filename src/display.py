@@ -87,10 +87,36 @@ def display_img(image):
 def display_weather(weather):
     now = datetime.now()
     current_time = now.strftime("%H:%M")
-    with canvas(device) as draw:
-        draw.text((0, 0), current_time, fill="white")
-        draw.text((0, 25), 'Weather:', fill="white")
-        draw_multiline_text(draw, weather, (0, 40), fill="white")
+    width = device.width
+    height = device.height
+    
+    # Create an empty image with mode '1' for 1-bit color
+    image = Image.new('1', (width, height))
+
+    # Initialize the drawing context
+    draw = ImageDraw.Draw(image)
+
+    # Display the text
+    draw_multiline_text(draw, current_time, (0, 0), fill=255, default_font_height=10)
+    draw_multiline_text(draw, 'Weather:', (0, 25), fill="white", default_font_height=10)
+    draw_multiline_text(draw, weather, (0, 40), fill="white", default_font_height=10)
+
+    image = image.transpose(Image.FLIP_LEFT_RIGHT)
+
+    # Display the image
+    device.display(image)
+    # can = canvas(device)
+    # can.__enter__().text((0, 0), current_time, fill="white")
+    # can.__enter__().text((0, 25), 'Weather:', fill="white")
+    # draw_multiline_text(can.__enter__(), weather, (0, 40), fill="white")
+    # can.image.transpose(Image.FLIP_LEFT_RIGHT)
+    # can.__exit__()
+    # with canvas(device) as draw:
+    #     draw.text((0, 0), current_time, fill="white")
+    #     draw.text((0, 25), 'Weather:', fill="white")
+    #     draw_multiline_text(draw, weather, (0, 40), fill="white")
+    #     draw.im.transpose(Image.FLIP_LEFT_RIGHT)
+    # device.display(can)
 
 
 def display_schedule(schedule, event_index):
@@ -99,12 +125,30 @@ def display_schedule(schedule, event_index):
 
     if event_index < len(schedule):
         event = schedule[event_index]
-        with canvas(device) as draw:
-            draw.text((0, 0), current_time, fill="white")
-            draw_multiline_text(draw, event, (0, 30), fill="white", default_font_height=10)
+        width = device.width
+        height = device.height
+        
+        # Create an empty image with mode '1' for 1-bit color
+        image = Image.new('1', (width, height))
+
+        # Initialize the drawing context
+        draw = ImageDraw.Draw(image)
+
+        # Display the text
+        draw_multiline_text(draw, current_time, (0, 0), fill=255, default_font_height=10)
+        draw_multiline_text(draw, event, (0, 30), fill="white", default_font_height=10)
+
+        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+
+        # Display the image
+        device.display(image)
+        # with canvas(device) as draw:
+        #     draw.text((0, 0), current_time, fill="white")
+        #     draw_multiline_text(draw, event, (0, 30), fill="white", default_font_height=10)
     else:
-        with canvas(device) as draw:
-            draw.text((0, 0), "No more \nevents.", fill="white")
+        display_text("No more \nevents.")
+        # with canvas(device) as draw:
+        #     draw.text((0, 0), "No more \nevents.", fill="white")
 
 
 def display_asl_translation(translation):

@@ -10,8 +10,6 @@ pandas==2.2.1
 picamera==1.13
 picamera2==0.3.17
 Pillow==10.1.0
-Pillow==10.2.0
-protobuf==4.25.3
 PyAudio==0.2.14
 python_weather==1.1.2
 tensorflow==2.15.0

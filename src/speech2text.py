@@ -74,6 +74,7 @@ class MicrophoneStream:
                     break
             yield b''.join(data)
 
+
 async def async_listen_print_loop(responses, translate_client):
     for response in responses:
         if not response.results:
@@ -106,11 +107,34 @@ async def speech_to_text():
         interim_results=True,
     )
 
-    with MicrophoneStream(rate, chunk) as stream:
-        audio_generator = stream.generator()
-        requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
-        responses = client.streaming_recognize(streaming_config, requests)
-        await async_listen_print_loop(responses, translate_client)
+    while True:
+        with MicrophoneStream(rate, chunk) as stream:
+            audio_generator = stream.generator()
+            def geny():
+                for content in audio_generator:
+                    # asyncio.sleep(0).__await__()
+                    yield speech.StreamingRecognizeRequest(audio_content=content)
+            # requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
+            requests = geny()
+            responses = client.streaming_recognize(streaming_config, requests)
+            # await async_listen_print_loop(responses, translate_client)
+            for response in responses:
+                if not response.results:
+                    continue
+                result = response.results[0]
+                if not result.alternatives:
+                    continue
+                transcript = result.alternatives[0].transcript
+                print(f"Detected: {transcript}")
+                if transcript.lower().find("hey focus") != -1:
+                    return
+                display_text(transcript)
+                await asyncio.sleep(0.2)  # Yield control back to the event loop
+            # Implement any additional functionality you need, such as translation
+            
+
+
+
     # with MicrophoneStream(rate, chunk) as stream:
     #         requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in stream.generator())
     #         responses = client.streaming_recognize(streaming_config, requests)

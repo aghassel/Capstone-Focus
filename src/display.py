@@ -33,11 +33,6 @@ serial_spi = spi(port=SPI_PORT, device=SPI_DEVICE, gpio_DC=24, gpio_RST=RST_PIN,
 device = ssd1306(serial_spi, width=WIDTH, height=HEIGHT, rotate=1) 
 
 
-def display_text(text):
-    with canvas(device) as draw:
-        draw.text((2, 25), text, fill="white")
-
-
 def draw_multiline_text(draw, text, position, fill="white", default_font_height=10):
     """
     Draw text, automatically breaking into lines that fit within the screen width.
@@ -64,6 +59,30 @@ def draw_multiline_text(draw, text, position, fill="white", default_font_height=
     if current_line:
         draw.text((x, y), current_line, fill=fill)
 
+
+def display_text(text, mirrored=True):
+    width = device.width
+    height = device.height
+    
+    # Create an empty image with mode '1' for 1-bit color
+    image = Image.new('1', (width, height))
+
+    # Initialize the drawing context
+    draw = ImageDraw.Draw(image)
+
+    # Display the text
+    draw_multiline_text(draw, text, (0, 0), fill=255, default_font_height=10)
+
+    if mirrored:
+        # Mirror the image horizontally
+        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+
+    # Display the image
+    device.display(image)
+
+def display_img(image):
+    # Display the image
+    device.display(image)
 
 def display_weather(weather):
     now = datetime.now()
@@ -94,6 +113,14 @@ def display_asl_translation(translation):
         draw.text((0, 0), "ASL \nTranslation:", fill="white")
         # Utilize the draw_multiline_text function to display the translation
         draw_multiline_text(draw, translation, (0, 35), fill="white", default_font_height=10)
+
+
+def display_speech2text(translated_text):
+    with canvas(device) as draw:
+        draw.text((0, 0), "Transcript:", fill="white")
+        # Use the provided draw_multiline_text function to display the translation text
+        draw_multiline_text(draw, translated_text, (0, 35), fill="white", default_font_height=10)
+
 
 
 def display_logo(path):

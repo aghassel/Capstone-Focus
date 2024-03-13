@@ -3,10 +3,11 @@ import socket
 import struct
 from picamera2 import Picamera2
 import asyncio
-from display import display_asl_translation
+from display import display_asl_translation, display_img
+from PIL import Image
 
 async def perform_asl_translation(picam2):
-    server_ip = '192.168.2.14'
+    server_ip = '172.20.10.3'
     server_port = 8000
     
     # Create a non-blocking socket
@@ -23,6 +24,10 @@ async def perform_asl_translation(picam2):
     try:
         while True:
             picam2.capture_file("temp.jpg")  # Temporarily capture to a file
+            with Image.open("temp.jpg") as img:
+                rotated_img = img.rotate(90, expand=True)  # `expand=True` to resize the image to fit the new orientation
+                rotated_img.save("temp.jpg")  # Overwrite the original image with the rotated one
+
             with open("temp.jpg", "rb") as image_file:
                 image_data = image_file.read()
                 mode_message = current_mode.encode('utf-8')
@@ -36,13 +41,19 @@ async def perform_asl_translation(picam2):
                 await asyncio.get_event_loop().sock_sendall(client_socket, image_header + image_data)
                 
                 prediction = await asyncio.get_event_loop().sock_recv(client_socket, 1024)
-                prediction_text = prediction.decode('utf-8')
-                # Split the prediction to extract the word part only
-                word, _ = prediction_text.split(',', 1)  # This assumes the format "word, confidence"
-                print(f"Received prediction: {prediction_text}")
-                
-                # Display only the word part of the ASL translation
-                display_asl_translation(word.strip())  # 
+                if current_mode == "ASL":
+                    prediction_text = prediction.decode('utf-8')
+                    # Split the prediction to extract the word part only
+                    word, _ = prediction_text.split(',', 1)  # This assumes the format "word, confidence"
+                    print(f"Received prediction: {prediction_text}")
+                    
+                    # Display only the word part of the ASL translation
+                    display_asl_translation(word.strip())  # 
+                if current_mode == "CAR":
+                    image = Image.frombytes('RGBA', prediction)
+                    display_img(image)
+                    image.save("testst.jpg")
+
         
     finally:
         client_socket.close()

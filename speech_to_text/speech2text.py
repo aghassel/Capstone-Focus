@@ -80,7 +80,8 @@ def listen_print_loop(responses, translate_client):
             return
         transcript = result.alternatives[0].transcript
         # Check if the detected language is not English, then translate
-        if result.language_code != "en-US" and result.language_code:
+        print(result.language_code)
+        if result.language_code.lower() != "en-us" and result.language_code:
             translation = translate_client.translate(transcript, target_language='en')
             print(f"Original ({result.language_code}): {transcript}")
             print(f"Translated to English: {translation['translatedText']}")
@@ -88,7 +89,7 @@ def listen_print_loop(responses, translate_client):
             print(f"Detected English: {transcript}")
 
 def main():
-    rate = 44100  # Example rate
+    rate = 16000  # Example rate
     # rate = 16000  # Example rate
     chunk = int(rate / 10)  # Example chunk size
     translate_client = translate.Client()
@@ -99,7 +100,7 @@ def main():
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=rate,
         language_code='en-US',
-        alternative_language_codes=['es', 'fr-CA'],
+        alternative_language_codes=['es-ES', 'fr-CA'],
         enable_automatic_punctuation=True
     )
 
@@ -128,10 +129,11 @@ def main():
                 #     continue
                 if response.results:
                     result = response.results[0]
-                    if result.alternatives and result.is_final:
+                    if result.alternatives:
                         transcript = result.alternatives[0].transcript
                         # Check if the detected language is not English, then translate
-                        if result.language_code != "en-US" and result.language_code:
+                        print(result.language_code)
+                        if result.language_code.lower() != "en-us":
                             translation = translate_client.translate(transcript, target_language='en')
                             print(f"Original ({result.language_code}): {transcript}")
                             print(f"Translated to English: {translation['translatedText']}")

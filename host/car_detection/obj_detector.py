@@ -134,17 +134,21 @@ class ObjectDetector:
 
             warning_string, left, center, right = self.warning(frame)
 
+            left_lbl = self.class_labels[int(left[4])] if left is not None else "None"
+            center_lbl = self.class_labels[int(center[4])] if center is not None else "None"
+            right_lbl = self.class_labels[int(right[4])] if right is not None else "None"
+
             if left is not None:
                 cv2.rectangle(frame, (int(left[0]), int(left[1])), (int(left[2]), int(left[3])), (0, 255, 0), 2)
-                cv2.putText(frame, f"{left[5]}", (int(left[0]), int(left[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(frame, f"#{left[5]}: {left_lbl}", (int(left[0]), int(left[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
             if center is not None:
                 cv2.rectangle(frame, (int(center[0]), int(center[1])), (int(center[2]), int(center[3])), (0, 255, 0), 2)
-                cv2.putText(frame, f"{center[5]}", (int(center[0]), int(center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(frame, f"#{center[5]}: {center_lbl}", (int(center[0]), int(center[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             
             if right is not None:
                 cv2.rectangle(frame, (int(right[0]), int(right[1])), (int(right[2]), int(right[3])), (0, 255, 0), 2)
-                cv2.putText(frame, f"{right[5]}", (int(right[0]), int(right[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(frame, f"#{right[5]}: {right_lbl}", (int(right[0]), int(right[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
             cv2.putText(frame, warning_string, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
            

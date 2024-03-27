@@ -24,6 +24,7 @@ class TTS:
         self.name = "nova"
         self.app = FastAPI()
         self.verbose = verbose
+        self.hist = ""
 
         if name is not None:
             self.name = name
@@ -81,7 +82,13 @@ class TTS:
         tts.generate_and_play_tts("Hello, world!")
         '''
         # Create a new thread that runs the _generate_and_play_tts method
-        threading.Thread(target=self._generate_and_play_tts_async, args=(text,)).start()
+        if self.hist != text or text.lower() != "unknown":
+            self.hist = text
+            print (self.hist)
+
+            threading.Thread(target=self._generate_and_play_tts_async, args=(text,)).start()
+        else:
+            print ("Text is the same as the last one, not playing")      
 
     def _generate_and_play_tts_async(self, text):
         '''
@@ -120,11 +127,17 @@ def main(args):
     tts.generate_and_play_tts(text)
  
     print ('Testing Async')
-    tts.generate_and_play_tts_async(text)
+    text = "Hello, world!"
 
+    tts.generate_and_play_tts_async(text)
     for i in range(20):
         print(i)
         time.sleep(0.5)
+    tts.generate_and_play_tts_async(text)
+
+    tts.generate_and_play_tts_async("unknown")
+
+
 
     print ("done") 
     print ('Test to see if audio plays while waiting for the loop to finish')

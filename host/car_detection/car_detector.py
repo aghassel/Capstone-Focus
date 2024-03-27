@@ -92,7 +92,6 @@ class CarDetector:
 
             # make frame a black image
             black_image = np.zeros((frame.shape[0], frame.shape[1], 3), dtype=np.uint8)
-            frame = black_image
             
             tic = time.time()
             black_image, bbox = self.predict_single_frame(frame, threshold)

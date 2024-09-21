@@ -35,10 +35,10 @@ Globally, **1.1 billion** people experience some form of vision loss, with **285
 
 <div align="center">
   <a href="https://github.com/aghassel/Focus-AI-Glasses/blob/main/images/stats_1.png" style="display:inline-block;">
-    <img src="https://github.com/aghassel/Focus-AI-Glasses/blob/main/images/stats_1.png" alt="Stats 1" height="400px">
+    <img src="https://github.com/aghassel/Focus-AI-Glasses/blob/main/images/stats_1.png" alt="Stats 1" height="300px">
   </a>
   <a href="https://github.com/aghassel/Focus-AI-Glasses/blob/main/images/stats_2.jpg" style="display:inline-block;">
-    <img src="https://github.com/aghassel/Focus-AI-Glasses/blob/main/images/stats_2.jpg" alt="Stats 2" height="400px">
+    <img src="https://github.com/aghassel/Focus-AI-Glasses/blob/main/images/stats_2.jpg" alt="Stats 2" height="300px">
   </a>
 </div>
 
